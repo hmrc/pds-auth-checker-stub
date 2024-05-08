@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.pdsauthcheckerstub.config
+package uk.gov.hmrc.pdsauthcheckerstub.models
 
-import com.google.inject.AbstractModule
+import play.api.libs.json.{Json, OFormat}
 
-class Module extends AbstractModule {
+import java.time.LocalDate
 
-  override def configure(): Unit = {
+case class PdsAuthRequest(validityDate: Option[LocalDate], authType: String, eoris: Seq[Eori])
 
-    bind(classOf[AppConfig]).asEagerSingleton()
-  }
+object PdsAuthRequest{
+  implicit val format: OFormat[PdsAuthRequest] = Json.format[PdsAuthRequest]
 }

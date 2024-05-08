@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.pdsauthcheckerstub.config
+package uk.gov.hmrc.pdsauthcheckerstub.controllers
 
-import com.google.inject.AbstractModule
 
-class Module extends AbstractModule {
+import play.api.mvc.{Action, ControllerComponents}
+import uk.gov.hmrc.pdsauthcheckerstub.models.PdsAuthRequest
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
-  override def configure(): Unit = {
-
-    bind(classOf[AppConfig]).asEagerSingleton()
+import javax.inject.{Inject, Singleton}
+@Singleton()
+class ValidateCustomsAuthController @Inject()(cc: ControllerComponents) extends BackendController(cc) {
+  def validateCustomsAuth: Action[PdsAuthRequest] = Action(parse.json[PdsAuthRequest]) { request =>
+    Ok
   }
 }

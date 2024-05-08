@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.pdsauthcheckerstub.config
+package uk.gov.hmrc.pdsauthcheckerstub.models
 
-import com.google.inject.AbstractModule
+import play.api.libs.json.{Format, Json}
+case class Eori(value: String) extends AnyVal
 
-class Module extends AbstractModule {
-
-  override def configure(): Unit = {
-
-    bind(classOf[AppConfig]).asEagerSingleton()
-  }
+object Eori {
+  implicit lazy val format: Format[Eori] = Json.valueFormat[Eori]
 }
