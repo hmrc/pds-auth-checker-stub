@@ -23,8 +23,14 @@ import uk.gov.hmrc.pdsauthcheckerstub.models.{AuthType, Eori, PdsAuthRequest}
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 trait TestCommonGenerators {
-  lazy val eoriGen: Gen[Eori] =     Gen.alphaNumStr.map(Eori(_))
-  lazy val eorisGen: Gen[Seq[Eori]] = Gen.listOfN(3000, eoriGen)
+  lazy val validEoriPrefix = Gen.oneOf("GB", "XI")
+  lazy val validEoriSuffix = Gen.listOfN(12, Gen.numChar).map(_.mkString)
+
+  lazy val eoriGen: Gen[Eori] = for {
+    prefix <- validEoriPrefix
+    suffix <- validEoriSuffix
+  } yield Eori(prefix + suffix)
+  lazy val eorisGen: Gen[Seq[Eori]] = Gen.chooseNum(1, 3000).flatMap(n => Gen.listOfN(n, eoriGen))
 
   lazy val authorisationRequestGen: Gen[PdsAuthRequest] = for {
     eoris <- eorisGen

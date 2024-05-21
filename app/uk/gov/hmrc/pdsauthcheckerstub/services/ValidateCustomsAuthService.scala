@@ -24,9 +24,9 @@ import javax.inject.Singleton
 @Singleton()
 class ValidateCustomsAuthService() {
   def validateCustoms(eoris: Seq[Eori], authType: AuthType, dateOption: Option[LocalDate]): PdsAuthResponse = {
-    val pdsAuthResponseResults: Seq[PdsAuthResponseResult] = eoris.map{ eori =>
-      val validBoolean = !eori.value.endsWith("999")
-      if(validBoolean)PdsAuthResponseResult(eori, valid = true, 0) else PdsAuthResponseResult(eori, valid = false, 1)
+    val pdsAuthResponseResults: Seq[PdsAuthResponseResult] = eoris.map { eori =>
+      val valid = !eori.value.endsWith("999")
+      PdsAuthResponseResult(eori, valid, if (valid) 0 else 1)
     }
     PdsAuthResponse(dateOption.getOrElse(LocalDate.now), authType, pdsAuthResponseResults)
   }
