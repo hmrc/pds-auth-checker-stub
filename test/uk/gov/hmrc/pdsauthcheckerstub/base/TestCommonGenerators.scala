@@ -18,7 +18,7 @@ package uk.gov.hmrc.pdsauthcheckerstub.base
 
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
-import uk.gov.hmrc.pdsauthcheckerstub.models.{Eori, PdsAuthRequest}
+import uk.gov.hmrc.pdsauthcheckerstub.models.{AuthType, Eori, PdsAuthRequest}
 
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
@@ -30,7 +30,7 @@ trait TestCommonGenerators {
     eoris <- eorisGen
     now = LocalDate.now()
     date <- Gen.option(Gen.choose(now.minus(1, ChronoUnit.YEARS), now.plus(3, ChronoUnit.MONTHS)))
-    authType <- Gen.alphaStr
+    authType <- Gen.oneOf(AuthType.values)
   } yield PdsAuthRequest(date,authType, eoris)
 
   implicit lazy val arbitraryAuthorisationRequest: Arbitrary[PdsAuthRequest] = Arbitrary(authorisationRequestGen)
