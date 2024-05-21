@@ -17,14 +17,13 @@
 package uk.gov.hmrc.pdsauthcheckerstub.controllers
 
 
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.Json
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.pdsauthcheckerstub.models.PdsAuthRequest
 import uk.gov.hmrc.pdsauthcheckerstub.services.ValidateCustomsAuthService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future
 @Singleton()
 class ValidateCustomsAuthController @Inject()(cc: ControllerComponents, validateCustomsAuthService: ValidateCustomsAuthService) extends BackendController(cc) {
   def validateCustomsAuth: Action[PdsAuthRequest] = Action(parse.json[PdsAuthRequest]) { request =>
@@ -32,10 +31,4 @@ class ValidateCustomsAuthController @Inject()(cc: ControllerComponents, validate
     Ok(Json.toJson(pdsAuthResponse))
   }
 
-//  def validateCustomsAuth: Action[JsValue] = Action.async(parse.json) { implicit request =>
-//    withJsonBody[PdsAuthRequest] { request =>
-//      val pdsAuthResponse = validateCustomsAuthService.validateCustoms(request.eoris, request.authType, request.validityDate)
-//      Future.successful(Ok(Json.toJson(pdsAuthResponse)))
-//    }
-//  }
 }
