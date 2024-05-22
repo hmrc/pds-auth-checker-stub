@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.pdsauthcheckerstub.models
+package uk.gov.hmrc.pdsauthcheckerstub.services
 
-import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.pdsauthcheckerstub.models.{AuthType, Eori, PdsAuthResponse, PdsAuthResponseResult}
 
 import java.time.LocalDate
+import javax.inject.Singleton
 
-case class PdsAuthRequest(validityDate: Option[LocalDate], authType: AuthType, eoris: Seq[Eori])
-
-object PdsAuthRequest {
-  implicit val format: OFormat[PdsAuthRequest] = Json.format[PdsAuthRequest]
+@Singleton()
+class ValidateCustomsAuthService() {
+  def validateCustoms(eoris: Seq[Eori], authType: AuthType, dateOption: Option[LocalDate]): PdsAuthResponse = {
+    val pdsAuthResponseResults: Seq[PdsAuthResponseResult] = eoris.map { eori =>
+      val valid = !eori.value.endsWith("999")
+      PdsAuthResponseResult(eori, valid, if (valid) 0 else 1)
+    }
+    PdsAuthResponse(dateOption.getOrElse(LocalDate.now), authType, pdsAuthResponseResults)
+  }
 }

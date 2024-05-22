@@ -16,12 +16,16 @@
 
 package uk.gov.hmrc.pdsauthcheckerstub.models
 
-import play.api.libs.json.{Json, OFormat}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import play.api.libs.json.Json
+import uk.gov.hmrc.pdsauthcheckerstub.base.TestCommonGenerators
 
-import java.time.LocalDate
-
-case class PdsAuthRequest(validityDate: Option[LocalDate], authType: AuthType, eoris: Seq[Eori])
-
-object PdsAuthRequest {
-  implicit val format: OFormat[PdsAuthRequest] = Json.format[PdsAuthRequest]
+class PdsAuthRequestSpec extends AnyWordSpec with Matchers with TestCommonGenerators with ScalaCheckPropertyChecks {
+  "PdsAuthRequest" should {
+    "roundtrip valid JSON" in forAll(authorisationRequestGen) { request =>
+      Json.toJson(request).as[PdsAuthRequest] shouldBe request
+    }
+  }
 }

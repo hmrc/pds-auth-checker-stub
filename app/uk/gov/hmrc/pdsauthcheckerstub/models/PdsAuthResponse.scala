@@ -20,8 +20,8 @@ import play.api.libs.json.{Json, OFormat}
 
 import java.time.LocalDate
 
-case class PdsAuthRequest(validityDate: Option[LocalDate], authType: AuthType, eoris: Seq[Eori])
+case class PdsAuthResponse(processingDate: LocalDate, authType: AuthType, results: Seq[PdsAuthResponseResult])
 
-object PdsAuthRequest {
-  implicit val format: OFormat[PdsAuthRequest] = Json.format[PdsAuthRequest]
+object PdsAuthResponse {
+  implicit val format: OFormat[PdsAuthResponse] = Json.format[PdsAuthResponse]
 }

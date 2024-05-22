@@ -17,14 +17,18 @@
 package uk.gov.hmrc.pdsauthcheckerstub.controllers
 
 
+import play.api.libs.json.Json
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.pdsauthcheckerstub.models.PdsAuthRequest
+import uk.gov.hmrc.pdsauthcheckerstub.services.ValidateCustomsAuthService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.{Inject, Singleton}
 @Singleton()
-class ValidateCustomsAuthController @Inject()(cc: ControllerComponents) extends BackendController(cc) {
+class ValidateCustomsAuthController @Inject()(cc: ControllerComponents, validateCustomsAuthService: ValidateCustomsAuthService) extends BackendController(cc) {
   def validateCustomsAuth: Action[PdsAuthRequest] = Action(parse.json[PdsAuthRequest]) { request =>
-    Ok
+    val pdsAuthResponse = validateCustomsAuthService.validateCustoms(request.body.eoris, request.body.authType, request.body.validityDate)
+    Ok(Json.toJson(pdsAuthResponse))
   }
+
 }

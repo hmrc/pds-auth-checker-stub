@@ -16,9 +16,15 @@
 
 package uk.gov.hmrc.pdsauthcheckerstub.models
 
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json
+
+import scala.util.matching.Regex
+
 case class Eori(value: String) extends AnyVal
 
 object Eori {
-  implicit lazy val format: Format[Eori] = Json.valueFormat[Eori]
+  val Regex: Regex = "^(GB|XI)\\d{12}$".r
+
+  implicit val reads: json.Reads[Eori] = json.Reads.pattern(Regex, s"EORI format invalid").map(Eori.apply)
+  implicit val writes: json.Writes[Eori] = implicitly[json.Writes[String]].contramap(_.value)
 }

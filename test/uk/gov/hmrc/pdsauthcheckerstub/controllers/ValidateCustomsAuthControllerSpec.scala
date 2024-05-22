@@ -24,12 +24,14 @@ import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.mvc._
 import play.api.test.Helpers._
 import play.api.test._
+import uk.gov.hmrc.pdsauthcheckerstub.services.ValidateCustomsAuthService
 
 import java.time.LocalDate
 import scala.concurrent.Future
 
 class ValidateCustomsAuthControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting with TestCommonGenerators with ScalaCheckPropertyChecks {
-  val controller = new ValidateCustomsAuthController(stubControllerComponents())
+  val service = new ValidateCustomsAuthService
+  val controller = new ValidateCustomsAuthController(stubControllerComponents(), service)
 
   "AuthorisationsController" should {
 
@@ -39,7 +41,6 @@ class ValidateCustomsAuthControllerSpec extends PlaySpec with GuiceOneAppPerTest
         val request = FakeRequest().withBody(authRequestWithDate)
         val result: Future[Result] = controller.validateCustomsAuth(request)
         status(result) mustBe OK
-        contentAsString(result) mustBe empty
       }
     }
 
@@ -50,7 +51,6 @@ class ValidateCustomsAuthControllerSpec extends PlaySpec with GuiceOneAppPerTest
         val result: Future[Result] = controller.validateCustomsAuth(request)
 
         status(result) mustBe OK
-        contentAsString(result) mustBe empty
       }
     }
 
