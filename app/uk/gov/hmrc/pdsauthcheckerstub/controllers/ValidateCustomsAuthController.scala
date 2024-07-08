@@ -21,52 +21,68 @@ import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.pdsauthcheckerstub.models.{ErrorDetail, PdsAuthRequest}
 import uk.gov.hmrc.pdsauthcheckerstub.services.ValidateCustomsAuthService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.auth.core._
+import uk.gov.hmrc.pdsauthcheckerstub.config.AppConfig
+import sttp.model.HeaderNames
+
 import java.time.Clock
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 @Singleton()
 class ValidateCustomsAuthController @Inject() (
     cc: ControllerComponents,
     validateCustomsAuthService: ValidateCustomsAuthService,
     clock: Clock,
-    val authConnector: AuthConnector
-)(implicit ec: ExecutionContext)
-    extends BackendController(cc)
-    with AuthorisedFunctions {
+    appConfig: AppConfig
+) extends BackendController(cc) {
+  private val bearerTokenPattern = "^Bearer (\\S+)$".r
+  private val authTokenError: ErrorDetail =
+    ErrorDetail(
+      clock.instant(),
+      "403",
+      "Authorisation not found",
+      "uri=/pds/cnit/validatecustomsauth/v1"
+    )
+
+  private def validateBearerToken(value: String): Option[ErrorDetail] =
+    value match {
+      case bearerTokenPattern(v) =>
+        if (appConfig.authToken != v) {
+          Some(authTokenError)
+        } else None
+      case _ =>
+        Some(authTokenError)
+    }
+
   def validateCustomsAuth: Action[PdsAuthRequest] =
     Action.async(parse.json[PdsAuthRequest]) { implicit request =>
-      authorised() {
-        val pdsAuthResponse = validateCustomsAuthService.validateCustoms(
-          request.body.eoris,
-          request.body.authType,
-          request.body.validityDate
-        )
-        Future.successful(Ok(Json.toJson(pdsAuthResponse)))
-      } recover {
-        case ex: NoActiveSession =>
-          Unauthorized(
-            Json.toJson(
-              ErrorDetail(
-                clock.instant(),
-                "401",
-                "You are not allowed to access this resource",
-                "uri=/pds/cnit/validatecustomsauth/v1"
+      request.headers.get(HeaderNames.Authorization) match {
+        case Some(value) =>
+          validateBearerToken(value) match {
+            case Some(error) =>
+              Future.successful(
+                Forbidden(
+                  Json.toJson(
+                    error
+                  )
+                )
+              )
+            case _ =>
+              val pdsAuthResponse =
+                validateCustomsAuthService.validateCustoms(
+                  request.body.eoris,
+                  request.body.authType,
+                  request.body.validityDate
+                )
+              Future.successful(Ok(Json.toJson(pdsAuthResponse)))
+          }
+        case None =>
+          Future.successful(
+            Forbidden(
+              Json.toJson(
+                authTokenError
               )
             )
           )
-        case ex: AuthorisationException =>
-          Forbidden(
-            Json.toJson(
-              ErrorDetail(
-                clock.instant(),
-                "403",
-                "Authorisation not found",
-                "uri=/pds/cnit/validatecustomsauth/v1"
-              )
-            )
-          )
-
       }
     }
 }
