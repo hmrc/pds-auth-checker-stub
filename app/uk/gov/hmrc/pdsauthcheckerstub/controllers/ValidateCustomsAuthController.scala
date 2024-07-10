@@ -18,71 +18,27 @@ package uk.gov.hmrc.pdsauthcheckerstub.controllers
 
 import play.api.libs.json.Json
 import play.api.mvc.{Action, ControllerComponents}
-import uk.gov.hmrc.pdsauthcheckerstub.models.{ErrorDetail, PdsAuthRequest}
+import uk.gov.hmrc.pdsauthcheckerstub.models.PdsAuthRequest
 import uk.gov.hmrc.pdsauthcheckerstub.services.ValidateCustomsAuthService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.pdsauthcheckerstub.config.AppConfig
-import sttp.model.HeaderNames
-
-import java.time.Clock
+import uk.gov.hmrc.pdsauthcheckerstub.actions.BearerTokenAction
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 @Singleton()
 class ValidateCustomsAuthController @Inject() (
     cc: ControllerComponents,
     validateCustomsAuthService: ValidateCustomsAuthService,
-    clock: Clock,
-    appConfig: AppConfig
+    bearerTokenAction: BearerTokenAction
 ) extends BackendController(cc) {
-  private val bearerTokenPattern = "^Bearer (\\S+)$".r
-  private val authTokenError: ErrorDetail =
-    ErrorDetail(
-      clock.instant(),
-      "403",
-      "Authorisation not found",
-      "uri=/pds/cnit/validatecustomsauth/v1"
-    )
-
-  private def validateBearerToken(value: String): Option[ErrorDetail] =
-    value match {
-      case bearerTokenPattern(v) =>
-        if (appConfig.authToken != v) {
-          Some(authTokenError)
-        } else None
-      case _ =>
-        Some(authTokenError)
-    }
 
   def validateCustomsAuth: Action[PdsAuthRequest] =
-    Action.async(parse.json[PdsAuthRequest]) { implicit request =>
-      request.headers.get(HeaderNames.Authorization) match {
-        case Some(value) =>
-          validateBearerToken(value) match {
-            case Some(error) =>
-              Future.successful(
-                Forbidden(
-                  Json.toJson(
-                    error
-                  )
-                )
-              )
-            case _ =>
-              val pdsAuthResponse =
-                validateCustomsAuthService.validateCustoms(
-                  request.body.eoris,
-                  request.body.authType,
-                  request.body.validityDate
-                )
-              Future.successful(Ok(Json.toJson(pdsAuthResponse)))
-          }
-        case None =>
-          Future.successful(
-            Forbidden(
-              Json.toJson(
-                authTokenError
-              )
-            )
-          )
-      }
+    bearerTokenAction.async(parse.json[PdsAuthRequest]) { implicit request =>
+      val pdsAuthResponse =
+        validateCustomsAuthService.validateCustoms(
+          request.body.eoris,
+          request.body.authType,
+          request.body.validityDate
+        )
+      Future.successful(Ok(Json.toJson(pdsAuthResponse)))
     }
 }

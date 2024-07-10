@@ -29,7 +29,9 @@ import uk.gov.hmrc.pdsauthcheckerstub.services.ValidateCustomsAuthService
 import play.api.Configuration
 import play.api.http.HeaderNames
 import play.api.libs.json.Json
+import uk.gov.hmrc.pdsauthcheckerstub.actions.BearerTokenAction
 import uk.gov.hmrc.pdsauthcheckerstub.config.AppConfig
+import scala.concurrent.ExecutionContext.Implicits.global
 import java.time.{Clock, Instant, LocalDate, ZoneOffset}
 import scala.concurrent.Future
 
@@ -50,6 +52,11 @@ class ValidateCustomsAuthControllerSpec
       configuration
     )
     val fixedClock: Clock = Clock.fixed(Instant.now(), ZoneOffset.UTC)
+    val bearerTokenAction = new BearerTokenAction(
+      new BodyParsers.Default(Helpers.stubControllerComponents().parsers),
+      wiremockServerConfig,
+      fixedClock
+    )
     val service = new ValidateCustomsAuthService
     val controllerComponents: ControllerComponents =
       Helpers.stubControllerComponents()
@@ -57,8 +64,7 @@ class ValidateCustomsAuthControllerSpec
       new ValidateCustomsAuthController(
         controllerComponents,
         service,
-        fixedClock,
-        wiremockServerConfig
+        bearerTokenAction
       )
   }
 
