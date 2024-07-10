@@ -96,7 +96,7 @@ class ValidateCustomsAuthControllerSpec
       }
     }
 
-    "return 401 UNAUTHORIZED when go boom" in new Setup {
+    "return 401 UNAUTHORIZED when an invalid token is provided" in new Setup {
       forAll { authRequest: PdsAuthRequest =>
         val request = FakeRequest()
           .withBody(authRequest)
