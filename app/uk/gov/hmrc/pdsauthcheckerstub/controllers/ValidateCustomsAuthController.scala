@@ -18,55 +18,27 @@ package uk.gov.hmrc.pdsauthcheckerstub.controllers
 
 import play.api.libs.json.Json
 import play.api.mvc.{Action, ControllerComponents}
-import uk.gov.hmrc.pdsauthcheckerstub.models.{ErrorDetail, PdsAuthRequest}
+import uk.gov.hmrc.pdsauthcheckerstub.models.PdsAuthRequest
 import uk.gov.hmrc.pdsauthcheckerstub.services.ValidateCustomsAuthService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import uk.gov.hmrc.auth.core._
-import java.time.Clock
+import uk.gov.hmrc.pdsauthcheckerstub.actions.BearerTokenAction
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 @Singleton()
 class ValidateCustomsAuthController @Inject() (
     cc: ControllerComponents,
     validateCustomsAuthService: ValidateCustomsAuthService,
-    clock: Clock,
-    val authConnector: AuthConnector
-)(implicit ec: ExecutionContext)
-    extends BackendController(cc)
-    with AuthorisedFunctions {
+    bearerTokenAction: BearerTokenAction
+) extends BackendController(cc) {
+
   def validateCustomsAuth: Action[PdsAuthRequest] =
-    Action.async(parse.json[PdsAuthRequest]) { implicit request =>
-      authorised() {
-        val pdsAuthResponse = validateCustomsAuthService.validateCustoms(
+    bearerTokenAction.async(parse.json[PdsAuthRequest]) { implicit request =>
+      val pdsAuthResponse =
+        validateCustomsAuthService.validateCustoms(
           request.body.eoris,
           request.body.authType,
           request.body.validityDate
         )
-        Future.successful(Ok(Json.toJson(pdsAuthResponse)))
-      } recover {
-        case ex: NoActiveSession =>
-          Unauthorized(
-            Json.toJson(
-              ErrorDetail(
-                clock.instant(),
-                "401",
-                "You are not allowed to access this resource",
-                "uri=/pds/cnit/validatecustomsauth/v1"
-              )
-            )
-          )
-        case ex: AuthorisationException =>
-          Forbidden(
-            Json.toJson(
-              ErrorDetail(
-                clock.instant(),
-                "403",
-                "Authorisation not found",
-                "uri=/pds/cnit/validatecustomsauth/v1"
-              )
-            )
-          )
-
-      }
+      Future.successful(Ok(Json.toJson(pdsAuthResponse)))
     }
 }
