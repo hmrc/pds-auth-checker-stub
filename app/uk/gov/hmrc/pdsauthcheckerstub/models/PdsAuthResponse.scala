@@ -18,9 +18,13 @@ package uk.gov.hmrc.pdsauthcheckerstub.models
 
 import play.api.libs.json.{Json, OFormat}
 
-import java.time.LocalDate
+import java.time.LocalDateTime
 
-case class PdsAuthResponse(processingDate: LocalDate, authType: AuthType, results: Seq[PdsAuthResponseResult])
+case class PdsAuthResponse(
+    processingDate: LocalDateTime,
+    authType: AuthType,
+    results: Seq[PdsAuthResponseResult]
+)
 
 object PdsAuthResponse {
   implicit val format: OFormat[PdsAuthResponse] = Json.format[PdsAuthResponse]

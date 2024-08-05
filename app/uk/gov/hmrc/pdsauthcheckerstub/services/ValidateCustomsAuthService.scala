@@ -16,18 +16,23 @@
 
 package uk.gov.hmrc.pdsauthcheckerstub.services
 
-import uk.gov.hmrc.pdsauthcheckerstub.models.{AuthType, Eori, PdsAuthResponse, PdsAuthResponseResult}
+import uk.gov.hmrc.pdsauthcheckerstub.models.{
+  AuthType,
+  Eori,
+  PdsAuthResponse,
+  PdsAuthResponseResult
+}
 
-import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.inject.Singleton
 
 @Singleton()
 class ValidateCustomsAuthService() {
-  def validateCustoms(eoris: Seq[Eori], authType: AuthType, dateOption: Option[LocalDate]): PdsAuthResponse = {
+  def validateCustoms(eoris: Seq[Eori], authType: AuthType): PdsAuthResponse = {
     val pdsAuthResponseResults: Seq[PdsAuthResponseResult] = eoris.map { eori =>
       val valid = !eori.value.endsWith("999")
       PdsAuthResponseResult(eori, valid, if (valid) 0 else 1)
     }
-    PdsAuthResponse(dateOption.getOrElse(LocalDate.now), authType, pdsAuthResponseResults)
+    PdsAuthResponse(LocalDateTime.now, authType, pdsAuthResponseResults)
   }
 }

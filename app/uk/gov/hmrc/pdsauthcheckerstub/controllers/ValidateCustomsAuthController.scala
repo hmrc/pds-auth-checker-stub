@@ -36,8 +36,7 @@ class ValidateCustomsAuthController @Inject() (
       val pdsAuthResponse =
         validateCustomsAuthService.validateCustoms(
           request.body.eoris,
-          request.body.authType,
-          request.body.validityDate
+          request.body.authType
         )
       Future.successful(Ok(Json.toJson(pdsAuthResponse)))
     }
