@@ -70,6 +70,7 @@ class ValidateCustomsAuthControllerSpec
 
   "AuthorisationsController" should {
 
+    //TODO: Retire, long out of date.
     "return 200 OK with empty body for valid JSON request with date populated and user is authorised" in new Setup {
 
       forAll { authRequest: PdsAuthRequest =>
