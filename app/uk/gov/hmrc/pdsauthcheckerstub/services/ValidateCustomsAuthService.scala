@@ -23,7 +23,7 @@ import uk.gov.hmrc.pdsauthcheckerstub.models.{
   PdsAuthResponseResult
 }
 
-import java.time.LocalDateTime
+import java.time.{LocalDateTime, ZoneOffset, ZonedDateTime}
 import javax.inject.Singleton
 
 @Singleton()
@@ -33,6 +33,10 @@ class ValidateCustomsAuthService() {
       val valid = !eori.value.endsWith("999")
       PdsAuthResponseResult(eori, valid, if (valid) 0 else 1)
     }
-    PdsAuthResponse(LocalDateTime.now, authType, pdsAuthResponseResults)
+    PdsAuthResponse(
+      ZonedDateTime.now(ZoneOffset.UTC),
+      authType,
+      pdsAuthResponseResults
+    )
   }
 }

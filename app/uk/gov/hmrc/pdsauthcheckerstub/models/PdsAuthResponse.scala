@@ -18,10 +18,10 @@ package uk.gov.hmrc.pdsauthcheckerstub.models
 
 import play.api.libs.json.{Json, OFormat}
 
-import java.time.LocalDateTime
+import java.time.{ZonedDateTime}
 
 case class PdsAuthResponse(
-    processingDate: LocalDateTime,
+    processingDate: ZonedDateTime,
     authType: AuthType,
     results: Seq[PdsAuthResponseResult]
 )
