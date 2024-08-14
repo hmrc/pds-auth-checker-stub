@@ -20,7 +20,6 @@ import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.pdsauthcheckerstub.base.TestCommonGenerators
 import uk.gov.hmrc.pdsauthcheckerstub.models.{ErrorDetail, PdsAuthRequest}
 import org.scalatestplus.play._
-import org.scalatestplus.play.guice._
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.mvc._
 import play.api.test.Helpers._
@@ -37,8 +36,6 @@ import scala.concurrent.Future
 
 class ValidateCustomsAuthControllerSpec
     extends PlaySpec
-    with GuiceOneAppPerTest
-    with Injecting
     with TestCommonGenerators
     with ScalaCheckPropertyChecks
     with MockitoSugar {
