@@ -17,7 +17,6 @@
 package uk.gov.hmrc.pdsauthcheckerstub.models
 
 import enumeratum._
-import play.api.libs.json.{Json, OFormat}
 
 sealed trait AuthType extends EnumEntry
 

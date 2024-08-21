@@ -38,6 +38,7 @@ class ValidateCustomsAuthController @Inject() (
           request.body.eoris,
           request.body.authType
         )
+      println("APPLES")
       Future.successful(Ok(Json.toJson(pdsAuthResponse)))
     }
 }
