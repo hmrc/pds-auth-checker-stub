@@ -23,7 +23,7 @@ import uk.gov.hmrc.pdsauthcheckerstub.models.{
   PdsAuthResponseResult
 }
 
-import java.time.{LocalDateTime, ZoneOffset, ZonedDateTime}
+import java.time.{ZoneOffset, ZonedDateTime}
 import javax.inject.Singleton
 
 @Singleton()

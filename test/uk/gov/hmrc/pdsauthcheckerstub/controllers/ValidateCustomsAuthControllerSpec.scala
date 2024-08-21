@@ -30,6 +30,7 @@ import play.api.http.HeaderNames
 import play.api.libs.json.Json
 import uk.gov.hmrc.pdsauthcheckerstub.actions.BearerTokenAction
 import uk.gov.hmrc.pdsauthcheckerstub.config.AppConfig
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import java.time.{Clock, Instant, LocalDate, ZoneOffset}
 import scala.concurrent.Future
@@ -94,11 +95,29 @@ class ValidateCustomsAuthControllerSpec
       }
     }
 
-    "return 401 UNAUTHORIZED when an invalid token is provided" in new Setup {
+    "return 403 UNAUTHORIZED when an invalid token is provided" in new Setup {
       forAll { authRequest: PdsAuthRequest =>
         val request = FakeRequest()
           .withBody(authRequest)
           .withHeaders(HeaderNames.AUTHORIZATION -> "Bearer incorrectToken")
+        val result: Future[Result] = controller.validateCustomsAuth(request)
+        status(result) mustBe FORBIDDEN
+        contentAsString(result) mustBe Json
+          .toJson(
+            ErrorDetail(
+              fixedClock.instant(),
+              "403",
+              "Authorisation not found",
+              "uri=/pds/cnit/validatecustomsauth/v1"
+            )
+          )
+          .toString
+      }
+    }
+    "return 403 UNAUTHORIZED when no auth token is provided" in new Setup {
+      forAll { authRequest: PdsAuthRequest =>
+        val request = FakeRequest()
+          .withBody(authRequest)
         val result: Future[Result] = controller.validateCustomsAuth(request)
         status(result) mustBe FORBIDDEN
         contentAsString(result) mustBe Json

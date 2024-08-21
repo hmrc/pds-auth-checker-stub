@@ -18,10 +18,11 @@ package uk.gov.hmrc.pdsauthcheckerstub.base
 
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
-import uk.gov.hmrc.pdsauthcheckerstub.models.{AuthType, Eori, PdsAuthRequest}
+import uk.gov.hmrc.pdsauthcheckerstub.models.{AuthType, Eori, PdsAuthRequest, PdsAuthResponse, PdsAuthResponseResult}
 
-import java.time.LocalDate
+import java.time.{LocalDate, ZoneOffset, ZonedDateTime}
 import java.time.temporal.ChronoUnit
+
 trait TestCommonGenerators {
   lazy val validEoriPrefix = Gen.oneOf("GB", "XI")
   lazy val validEoriSuffix = Gen.listOfN(12, Gen.numChar).map(_.mkString)
@@ -38,6 +39,29 @@ trait TestCommonGenerators {
     date <- Gen.option(Gen.choose(now.minus(1, ChronoUnit.YEARS), now.plus(3, ChronoUnit.MONTHS)))
     authType <- Gen.oneOf(AuthType.values)
   } yield PdsAuthRequest(date,authType, eoris)
+
+  def authorisationResponseResultGen(eori: Eori): Gen[PdsAuthResponseResult] = {
+    val isValid = Gen.oneOf(true, false).sample.get
+    val code = if (isValid) 0 else Gen.oneOf(1, 2).sample.get
+    PdsAuthResponseResult(eori, isValid, code)
+  }
+
+  def authorisationResponseResultsGen(
+                                       eoris: Seq[Eori]
+                                     ): Gen[Seq[PdsAuthResponseResult]] = {
+    eoris.map { eori =>
+      authorisationResponseResultGen(eori).sample.get
+    }
+  }
+
+  def authorisationResponseGen(
+                                authRequest: PdsAuthRequest
+                              ): Gen[PdsAuthResponse] =
+    PdsAuthResponse(
+      ZonedDateTime.now(ZoneOffset.UTC),
+      authRequest.authType,
+      authorisationResponseResultsGen(authRequest.eoris).sample.get
+    )
 
   implicit lazy val arbitraryAuthorisationRequest: Arbitrary[PdsAuthRequest] = Arbitrary(authorisationRequestGen)
 
