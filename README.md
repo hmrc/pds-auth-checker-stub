@@ -1,7 +1,27 @@
 
-# pds-auth-checker-stub
+# PDS Auth Checker Stub (PDS)
 
-This is a placeholder README.md for a new repository
+This repository contains the stub for the pds-auth-checker-api
+
+### Overview
+
+This stub imitates the EIS .cau01/validatecustomsauth/v1 endpoint of the CAU01 Customs Authorisation EIS API
+
+### Running in DEV mode
+
+To start the repo use `sbt run`
+
+To start the service locally using service manager, use `sm2 --start PDS_AUTH_CHECKER_STUB`
+
+It is also part of the `UKIM_ALL` profile.
+
+### Running unit tests
+
+    sbt test
+
+### Running integration tests
+
+    sbt it/test
 
 ### License
 
